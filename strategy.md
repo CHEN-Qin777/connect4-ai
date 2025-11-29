@@ -39,11 +39,11 @@ L'agent vérifie les règles dans l'ordre suivant :
 
 ## Décomposition de l'Algorithme
 choose_action()
-├── _get_valid_actions() - Obtenir les colonnes jouables
-├── _find_winning_move() - Vérifier si je peux gagner immédiatement
-├── _find_winning_move(adversaire) - Vérifier si je dois bloquer
-├── evaluate_position() - Évaluer les positions stratégiques (amélioration future)
-└── fallback_move() - Choix par défaut (centre ou aléatoire) 
+    ├── _get_valid_actions() - Obtenir les colonnes jouables
+    ├── _find_winning_move() - Vérifier si je peux gagner immédiatement
+    ├── _find_winning_move(adversaire) - Vérifier si je dois bloquer
+    ├── evaluate_position() - Évaluer les positions stratégiques (amélioration future)
+    └── fallback_move() - Choix par défaut (centre ou aléatoire)
 
 ## Justification des Choix
 
@@ -55,3 +55,4 @@ Les colonnes centrales offrent plus de possibilités d'alignement dans toutes le
 
 ### Complexité de la Détection de Victoire
 La détection de victoire vérifie 4 directions depuis chaque position possible, ce qui donne une complexité raisonnable pour un plateau 6x7.
+
