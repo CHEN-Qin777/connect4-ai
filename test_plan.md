@@ -50,17 +50,17 @@ Pour l'agent avancé (MinimaxAgent, optionnel) :
 ### Scénario 1 : Détecter une victoire immédiate
 État du plateau :
 
-. . . . . . .
+[ ][ ][ ][ ][ ][ ][ ]
 
-. . . . . . .
+[ ][ ][ ][ ][ ][ ][ ]
 
-. . . . . . .
+[ ][ ][ ][ ][ ][ ][ ]
 
-. . . . . . .
+[ ][ ][ ][ ][ ][ ][ ]
 
-. . . . . . .
+[ ][ ][ ][ ][ ][ ][ ]
 
-X X X . . . . <- Ligne du bas, 3 alignés
+X X X [ ][ ][ ][ ] <- Ligne du bas, 3 alignés
 
 Attendu : L'agent joue la colonne 3 pour gagner
 
@@ -114,4 +114,5 @@ Attendu : L'agent (X) joue la colonne 3 pour gagner (alignement diagonal)
 2. Exécuter les tests de performance
 3. Exécuter le tournoi entre agents
 4. Générer un rapport de test
+
 
