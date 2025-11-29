@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/23834129/README.md)
+
 # 🎯 Projet Puissance 4 - Intelligence Artificielle
 
 Ce projet implémente le jeu **Puissance 4** avec plusieurs agents intelligents développés en Python utilisant le framework **PettingZoo**. Les agents sont optimisés pour la compétition sur [ML-Arena](https://ml-arena.com/viewcompetition/2).
