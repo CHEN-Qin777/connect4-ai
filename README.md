@@ -3,6 +3,13 @@
 
 Ce projet implémente le jeu **Puissance 4** avec plusieurs agents intelligents développés en Python utilisant le framework **PettingZoo**. Les agents sont optimisés pour la compétition sur [ML-Arena](https://ml-arena.com/viewcompetition/2).
 
+## 🌐 Démonstration en Ligne
+
+**Essayez le jeu maintenant !** 🎮
+- **URL**: https://huggingface.co/spaces/clearlove777qin/connect4-ai-master
+- **Plateforme**: Hugging Face Spaces
+- **Fonctionnalités**: Interface web interactive pour tester tous les agents
+  
 ## 🏆 Agents Implémentés
 
 ### 1. RandomAgent
