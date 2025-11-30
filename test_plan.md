@@ -48,34 +48,32 @@ Pour l'agent avancé (MinimaxAgent, optionnel) :
 ## 4. Scénarios de Test
 
 ### Scénario 1 : Détecter une victoire immédiate
+```
 État du plateau :
-
-[ ][ ][ ][ ][ ][ ][ ]
-
-[ ][ ][ ][ ][ ][ ][ ]
-
-[ ][ ][ ][ ][ ][ ][ ]
-
-[ ][ ][ ][ ][ ][ ][ ]
-
-[ ][ ][ ][ ][ ][ ][ ]
-
-X X X [ ][ ][ ][ ] <- Ligne du bas, 3 alignés
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+X X X . . . .  <- Ligne du bas, 3 alignés
 
 Attendu : L'agent joue la colonne 3 pour gagner
-
+```
 ### Scénario 2 : Bloquer la victoire de l'adversaire
+```
 État du plateau :
 . . . . . . .
 . . . . . . .
 . . . . . . .
 . . . . . . .
 . . . . . . .
-O O O . . . . <- L'adversaire a 3 alignés
+O O O . . . .  <- L'adversaire a 3 alignés
 
 Attendu : L'agent joue la colonne 3 pour bloquer
+```
 
 ### Scénario 3 : Préférence pour le centre
+```
 État du plateau :
 . . . . . . .
 . . . . . . .
@@ -85,8 +83,9 @@ Attendu : L'agent joue la colonne 3 pour bloquer
 . . . . . . . <- Plateau vide
 
 Attendu : L'agent joue la colonne 3 (centre)
-
+```
 ### Scénario 4 : Éviter les colonnes pleines
+```
 État du plateau :
 . . . . . . .
 . . . . . . .
@@ -96,8 +95,9 @@ X . . . . . .
 X . . . . . . <- Colonne 0 pleine
 
 Attendu : L'agent ne joue pas la colonne 0
-
+```
 ### Scénario 5 : Victoire en diagonale
+```
 État du plateau :
 . . . . . . .
 . . . . . . .
@@ -107,12 +107,13 @@ Attendu : L'agent ne joue pas la colonne 0
 X O O X . . . <- Diagonale descendante
 
 Attendu : L'agent (X) joue la colonne 3 pour gagner (alignement diagonal)
-
+```
 ## 5. Plan d'Exécution
 
 1. Exécuter les tests unitaires pour chaque agent
 2. Exécuter les tests de performance
 3. Exécuter le tournoi entre agents
 4. Générer un rapport de test
+
 
 
