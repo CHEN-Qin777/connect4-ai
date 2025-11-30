@@ -8,7 +8,8 @@ Ce projet implémente le jeu **Puissance 4** avec plusieurs agents intelligents 
 **Essayez le jeu maintenant !** 🎮
 - **URL**: https://huggingface.co/spaces/clearlove777qin/connect4-ai-master
 - **Plateforme**: Hugging Face Spaces
-- **Fonctionnalités**: Interface web interactive pour tester tous les agents
+- **Fonctionnalités**: Interface web interactive avec un agent de base
+- **Note**: Cette démo présente une version simplifiée avec un agent standard. Le dépôt complet contient tous les agents avancés.
   
 ## 🏆 Agents Implémentés
 
