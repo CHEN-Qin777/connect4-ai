@@ -41,7 +41,7 @@ def test_minimax_vs_random():
     """Test Minimax vs RandomAgent"""
     print("Test: Minimax vs RandomAgent")
     
-    num_games = 5  # Reduced for quick tests
+    num_games = 50  # Reduced for quick tests
     minimax_wins = 0
     random_wins = 0
     draws = 0
@@ -102,7 +102,7 @@ def test_minimax_vs_smart():
     """Test Minimax vs SmartAgent"""
     print("Test: Minimax vs SmartAgent")
     
-    num_games = 3  # Reduced because it's slower
+    num_games = 30  # Reduced because it's slower
     minimax_wins = 0
     smart_wins = 0
     draws = 0
@@ -227,3 +227,4 @@ if __name__ == "__main__":
     test_minimax_vs_smart()
     
     print("\n🎉 All MinimaxAgent tests passed!")
+
