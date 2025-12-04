@@ -22,7 +22,7 @@ class RandomAgent:
             player_name: Optional agent name
         """
         self.env = env
-        self.action_space = env.action_space(env.agents[0])
+        
         self.player_name = player_name or "RandomAgent"
 
     def choose_action(self, observation, reward=0.0, terminated=False, truncated=False, info=None, action_mask=None):
@@ -48,3 +48,4 @@ class RandomAgent:
             return random.choice(valid_actions)
         else:
             return None  # No valid moves (shouldn't happen)
+
