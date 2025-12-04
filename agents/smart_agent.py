@@ -23,7 +23,7 @@ class SmartAgent:
             player_name: Optional agent name
         """
         self.env = env
-        self.action_space = env.action_space(env.agents[0])
+       
         self.player_name = player_name or "SmartAgent"
         self.ROW_COUNT = 6
         self.COLUMN_COUNT = 7
@@ -178,3 +178,4 @@ class SmartAgent:
                 return True
         
         return False
+
