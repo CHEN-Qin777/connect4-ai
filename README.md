@@ -80,8 +80,8 @@ Ce projet implémente le jeu **Puissance 4** avec plusieurs agents intelligents 
 4. **Optimisations**: Temps de réponse constant
 
 ### 🚀 Performance
-- Taux de victoire contre RandomAgent: >98%
-- Taux de victoire contre SmartAgent: >85%
+- Taux de victoire contre RandomAgent: =100%
+- Taux de victoire contre SmartAgent: =100%
 - Stabilité: Performances constantes
 
 ## 🛠 Installation
