@@ -16,6 +16,7 @@ from agents.random_agent import RandomAgent
 def test_get_valid_actions():
     """Test _get_valid_actions function"""
     env = connect_four_v3.env()
+    env.reset()
     agent = SmartAgent(env)
     
     # Test with all columns valid
@@ -32,6 +33,7 @@ def test_get_valid_actions():
 def test_get_next_row():
     """Test _get_next_row function"""
     env = connect_four_v3.env()
+    env.reset()
     agent = SmartAgent(env)
     
     # Empty board - piece goes to bottom
@@ -53,6 +55,7 @@ def test_get_next_row():
 def test_check_win_from_position():
     """Test _check_win_from_position function"""
     env = connect_four_v3.env()
+    env.reset()
     agent = SmartAgent(env)
     
     # Test horizontal win
@@ -84,6 +87,7 @@ def test_check_win_from_position():
 def test_find_winning_move():
     """Test _find_winning_move function"""
     env = connect_four_v3.env()
+    env.reset()
     agent = SmartAgent(env)
     
     # Scenario: 3 aligned pieces, need 4th
@@ -146,7 +150,15 @@ def test_smart_vs_random():
                 env.step(action)
         
         # Analyze result
-        if final_reward == 1:
+        # When game ends: reward=-1 means last_agent lost, reward=1 means last_agent won
+        if final_reward == -1:
+            # last_agent lost, so the other player won
+            if last_agent == "player_0":  # SmartAgent was player_0, it lost
+                random_wins += 1
+            else:
+                smart_wins += 1
+        elif final_reward == 1:
+            # last_agent won
             if last_agent == "player_0":  # SmartAgent was player_0
                 smart_wins += 1
             else:
@@ -171,6 +183,7 @@ def test_smart_vs_random():
 def test_specific_scenarios():
     """Test specific scenarios"""
     env = connect_four_v3.env()
+    env.reset()
     agent = SmartAgent(env)
     
     print("\nTesting specific scenarios:")
@@ -214,3 +227,5 @@ if __name__ == "__main__":
     test_smart_vs_random()
     
     print("\n🎉 All SmartAgent tests passed!")
+
+
