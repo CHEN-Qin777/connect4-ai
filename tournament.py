@@ -101,9 +101,18 @@ def play_game(agent_class1, agent_class2, seed, render_mode=None):
             env.step(action)
     
     env.close()
-    
+
     # Determine winner
-    if final_reward == 1:
+    # When game ends: reward=-1 means last_agent lost, reward=1 means last_agent won
+    if final_reward == -1:
+        # last_agent lost, so the other player won
+        if last_agent == "player_0":
+            winner_class = agents["player_1"].__class__.__name__
+        else:
+            winner_class = agents["player_0"].__class__.__name__
+        return winner_class
+    elif final_reward == 1:
+        # last_agent won
         winner_class = agents[last_agent].__class__.__name__
         return winner_class
     else:
@@ -167,4 +176,6 @@ def main():
 
 
 if __name__ == "__main__":
+    main()
+
     main()
