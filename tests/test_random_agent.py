@@ -107,7 +107,15 @@ def test_multiple_games(num_games=10):
                 moves += 1
         
         # Analyze result
-        if final_reward == 1:
+        # When game ends: reward=-1 means last_agent lost, reward=1 means last_agent won
+        if final_reward == -1:
+            # last_agent lost, so the other player won
+            if last_agent == "player_0":
+                wins_player1 += 1
+            else:
+                wins_player0 += 1
+        elif final_reward == 1:
+            # last_agent won
             if last_agent == "player_0":
                 wins_player0 += 1
             else:
