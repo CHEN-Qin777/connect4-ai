@@ -3,288 +3,268 @@ MCTS Agent (Monte Carlo Tree Search) for Connect Four
 Exercise 5: Advanced challenges
 """
 
+
 import numpy as np
-import random
-import math
 import time
+import math
+from copy import deepcopy
 
 
 class MCTSNode:
-    """
-    Node in MCTS tree
-    """
-
-    def __init__(self, board, player, parent=None, move=None):
-        """
-        Initialize MCTS node
-
-        Parameters:
-            board: Game state
-            player: Whose turn (0 or 1)
-            parent: Parent node
-            move: Move that led to this node
-        """
-        self.board = board        # Game state
-        self.player = player      # Player turn
-        self.parent = parent      # Parent node
-        self.move = move          # Move that led here
-        self.children = []        # Child nodes
-        self.visits = 0           # Times visited
-        self.wins = 0             # Times led to win
-        self.untried_moves = self._get_valid_moves(board)  # Untried moves
-
+    """Node in the MCTS tree"""
+    
+    def __init__(self, state, action_mask, parent=None, action=None, player=0):
+        self.state = state.copy()
+        self.action_mask = action_mask.copy()
+        self.parent = parent
+        self.action = action  # Action that led to this node
+        self.player = player  # Player who just moved (0 or 1)
+        
+        self.children = {}
+        self.visits = 0
+        self.value = 0.0
+        
+        # Get valid actions
+        self.untried_actions = [i for i in range(len(action_mask)) if action_mask[i] == 1]
+    
     def is_fully_expanded(self):
-        """Check if all children have been added"""
-        return len(self.untried_moves) == 0
-
+        return len(self.untried_actions) == 0
+    
+    def is_terminal(self):
+        return len(self.untried_actions) == 0 and len(self.children) == 0
+    
     def best_child(self, c=1.41):
-        """
-        Select best child using UCB1
-
-        Parameters:
-            c: exploration constant
-
-        Returns:
-            MCTSNode: best child
-        """
-        choices_weights = [
-            (child.wins / child.visits) + c * math.sqrt(math.log(self.visits) / child.visits)
-            for child in self.children
-        ]
-        return self.children[np.argmax(choices_weights)]
-
-    def _get_valid_moves(self, board):
-        """Get valid moves from this state"""
-        return [c for c in range(7) if board[0][c] == 0]
+        """Select best child using UCB1"""
+        if not self.children:
+            return None
+            
+        best_score = -float('inf')
+        best_child = None
+        
+        for action, child in self.children.items():
+            if child.visits == 0:
+                score = float('inf')
+            else:
+                exploit = child.value / child.visits
+                explore = c * math.sqrt(math.log(self.visits + 1) / child.visits)
+                score = exploit + explore
+            
+            if score > best_score:
+                best_score = score
+                best_child = child
+        
+        return best_child
+    
+    def best_action(self):
+        """Return action with most visits"""
+        if not self.children:
+            # Return random valid action if no children
+            valid_actions = [i for i in range(len(self.action_mask)) if self.action_mask[i] == 1]
+            if valid_actions:
+                return np.random.choice(valid_actions)
+            return 0
+            
+        best_visits = -1
+        best_action = None
+        
+        for action, child in self.children.items():
+            if child.visits > best_visits:
+                best_visits = child.visits
+                best_action = action
+        
+        return best_action
 
 
 class MCTSAgent:
-    """
-    Agent using Monte Carlo Tree Search
-    """
-
-    def __init__(self, env, time_limit=1.0, player_name=None):
-        """
-        Initialize MCTS agent
-
-        Parameters:
-            env: PettingZoo environment
-            time_limit: Time budget per move (seconds)
-            player_name: Optional agent name
-        """
+    """Monte Carlo Tree Search agent"""
+    
+    def __init__(self, env, time_limit=1.0, player_name="MCTSAgent"):
         self.env = env
         self.time_limit = time_limit
-        self.player_name = player_name or "MCTS"
-        self.ROW_COUNT = 6
-        self.COLUMN_COUNT = 7
-        self.AI_PIECE = 1
-        self.OPPONENT_PIECE = 0
-
-    def choose_action(self, observation, reward=0.0, terminated=False, truncated=False, info=None, action_mask=None):
-        """
-        Choose action using MCTS
-
-        Parameters:
-            observation: Current board state
-            reward: Previous action reward
-            terminated: Is game over?
-            truncated: Was game truncated?
-            info: Additional info
-            action_mask: Valid actions mask
-
-        Returns:
-            action: Column to play
-        """
-        # Convert observation
-        board = self._observation_to_board(observation)
+        self.player_name = player_name
+        self.iterations = 0
+    
+    def choose_action(self, observation, reward, termination, truncation, info, action_mask):
+        """Choose action using MCTS"""
+        # Get valid actions
+        valid_actions = [i for i in range(len(action_mask)) if action_mask[i] == 1]
         
-        # Create root node
-        root = MCTSNode(board, player=0)  # We are player 0
-
+        # Handle edge cases
+        if not valid_actions:
+            return 0
+        
+        if len(valid_actions) == 1:
+            return valid_actions[0]
+        
+        # Check for immediate winning move
+        for action in valid_actions:
+            if self._is_winning_move(observation, action, 0):
+                return action
+        
+        # Check for blocking opponent's winning move
+        for action in valid_actions:
+            if self._is_winning_move(observation, action, 1):
+                return action
+        
+        # Run MCTS
+        root = MCTSNode(observation, action_mask, player=1)  # Opponent just moved
+        
         start_time = time.time()
-
-        # Run MCTS until time limit
-        simulations = 0
+        self.iterations = 0
+        
         while time.time() - start_time < self.time_limit:
-            # 1. Selection
-            node = self._select(root)
-
-            # 2. Expansion
-            if not self._is_terminal(node):
-                node = self._expand(node)
-
-            # 3. Simulation
-            result = self._simulate(node)
-
-            # 4. Backpropagation
-            self._backpropagate(node, result)
-
-            simulations += 1
-
-        # Choose best move (exploitation only)
-        best_child = root.best_child(c=0)  # c=0 means exploitation only
-        print(f"MCTS: {simulations} simulations performed")
-        return best_child.move
-
-    def _select(self, node):
-        """
-        Select promising node to explore
-
-        Returns:
-            node: node to expand
-        """
-        while node.is_fully_expanded() and not self._is_terminal(node):
+            self._mcts_iteration(root, observation)
+            self.iterations += 1
+            
+            # Safety limit
+            if self.iterations > 10000:
+                break
+        
+        best_action = root.best_action()
+        
+        # Fallback if MCTS failed
+        if best_action is None or action_mask[best_action] != 1:
+            best_action = np.random.choice(valid_actions)
+        
+        return best_action
+    
+    def _mcts_iteration(self, root, initial_state):
+        """Run one iteration of MCTS"""
+        node = root
+        state = initial_state.copy()
+        current_player = 0  # We are player 0
+        
+        # Selection - traverse tree using UCB1
+        while node.is_fully_expanded() and node.children:
             node = node.best_child()
-        return node
-
-    def _expand(self, node):
-        """
-        Add new child to node
-
-        Returns:
-            new_child: new child node
-        """
-        if node.untried_moves:
-            move = random.choice(node.untried_moves)
-            node.untried_moves.remove(move)
-            
-            # Create new state
-            new_board = self._make_move(node.board.copy(), move, node.player)
-            new_player = 1 - node.player  # Switch player
-            
-            # Create new child
-            child = MCTSNode(new_board, new_player, parent=node, move=move)
-            node.children.append(child)
-            return child
-        
-        return node
-
-    def _simulate(self, node):
-        """
-        Play random game from node
-
-        Returns:
-            result: result (1 for win, 0 for loss, 0.5 for draw)
-        """
-        current_board = node.board.copy()
-        current_player = node.player
-        
-        while not self._is_terminal_board(current_board):
-            # Choose random move
-            valid_moves = [c for c in range(7) if current_board[0][c] == 0]
-            if not valid_moves:
-                break  # Draw
-                
-            move = random.choice(valid_moves)
-            current_board = self._make_move(current_board, move, current_player)
-            
-            # Check win
-            if self._winning_move(current_board, current_player):
-                # Return result from original node's perspective
-                return 1.0 if current_player == 0 else 0.0
-            
+            if node is None:
+                break
+            state = self._apply_action(state, node.action, 1 - current_player)
             current_player = 1 - current_player
         
-        # Draw
-        return 0.5
-
-    def _backpropagate(self, node, result):
-        """
-        Update statistics up the tree
-
-        Parameters:
-            node: Leaf node where simulation started
-            result: Game result
-        """
+        if node is None:
+            return
+        
+        # Expansion - add a new child
+        if node.untried_actions:
+            action = np.random.choice(node.untried_actions)
+            node.untried_actions.remove(action)
+            
+            new_state = self._apply_action(state, action, current_player)
+            new_mask = self._get_action_mask(new_state)
+            
+            child = MCTSNode(new_state, new_mask, parent=node, action=action, player=current_player)
+            node.children[action] = child
+            node = child
+            state = new_state
+            current_player = 1 - current_player
+        
+        # Simulation - random playout
+        result = self._simulate(state, current_player)
+        
+        # Backpropagation
         while node is not None:
             node.visits += 1
-            # For root node (player 0), win is good result
+            # Value from our perspective (player 0)
             if node.player == 0:
-                node.wins += result
+                node.value += result
             else:
-                node.wins += (1 - result)  # Inverse for opponent
+                node.value += (1 - result)
             node = node.parent
-
-    def _is_terminal(self, node):
-        """Check if game is over for this node"""
-        return self._is_terminal_board(node.board)
-
-    def _is_terminal_board(self, board):
-        """Check if game is over for this board"""
-        return (self._winning_move(board, 0) or 
-                self._winning_move(board, 1) or 
-                len([c for c in range(7) if board[0][c] == 0]) == 0)
-
-    def _winning_move(self, board, piece):
-        """Check if player has won"""
-        # Check horizontal wins
-        for c in range(4):
-            for r in range(6):
-                if (board[r][c] == piece and 
-                    board[r][c+1] == piece and 
-                    board[r][c+2] == piece and 
-                    board[r][c+3] == piece):
-                    return True
-
-        # Check vertical wins
-        for c in range(7):
-            for r in range(3):
-                if (board[r][c] == piece and 
-                    board[r+1][c] == piece and 
-                    board[r+2][c] == piece and 
-                    board[r+3][c] == piece):
-                    return True
-
-        # Check positive diagonals
-        for c in range(4):
-            for r in range(3):
-                if (board[r][c] == piece and 
-                    board[r+1][c+1] == piece and 
-                    board[r+2][c+2] == piece and 
-                    board[r+3][c+3] == piece):
-                    return True
-
-        # Check negative diagonals
-        for c in range(4):
-            for r in range(3, 6):
-                if (board[r][c] == piece and 
-                    board[r-1][c+1] == piece and 
-                    board[r-2][c+2] == piece and 
-                    board[r-3][c+3] == piece):
-                    return True
-
-        return False
-
-    def _make_move(self, board, col, player):
-        """
-        Make move on board
-
-        Parameters:
-            board: Current board
-            col: Column to play
-            player: Player who plays
-
-        Returns:
-            new_board: New board
-        """
-        new_board = board.copy()
-        for r in range(5, -1, -1):
-            if new_board[r][col] == 0:
-                new_board[r][col] = player
+    
+    def _simulate(self, state, current_player):
+        """Random simulation from current state"""
+        sim_state = state.copy()
+        player = current_player
+        
+        for _ in range(42):  # Max moves in Connect Four
+            # Check for terminal state
+            winner = self._check_winner(sim_state)
+            if winner is not None:
+                if winner == 0:
+                    return 1.0  # We win
+                elif winner == 1:
+                    return 0.0  # Opponent wins
+                else:
+                    return 0.5  # Draw
+            
+            # Get valid actions
+            valid_actions = self._get_valid_actions(sim_state)
+            if not valid_actions:
+                return 0.5  # Draw
+            
+            # Random move
+            action = np.random.choice(valid_actions)
+            sim_state = self._apply_action(sim_state, action, player)
+            player = 1 - player
+        
+        return 0.5  # Draw if max moves reached
+    
+    def _apply_action(self, state, action, player):
+        """Apply action to state and return new state"""
+        new_state = state.copy()
+        column = action
+        
+        # Find lowest empty row in column
+        for row in range(5, -1, -1):
+            if new_state[row, column, 0] == 0 and new_state[row, column, 1] == 0:
+                new_state[row, column, player] = 1
                 break
-        return new_board
+        
+        return new_state
+    
+    def _get_action_mask(self, state):
+        """Get valid actions for state"""
+        mask = np.zeros(7, dtype=np.int8)
+        for col in range(7):
+            if state[0, col, 0] == 0 and state[0, col, 1] == 0:
+                mask[col] = 1
+        return mask
+    
+    def _get_valid_actions(self, state):
+        """Get list of valid actions"""
+        valid = []
+        for col in range(7):
+            if state[0, col, 0] == 0 and state[0, col, 1] == 0:
+                valid.append(col)
+        return valid
+    
+    def _check_winner(self, state):
+        """Check if there's a winner. Returns 0, 1, 2 (draw), or None"""
+        # Check for each player
+        for player in range(2):
+            # Horizontal
+            for row in range(6):
+                for col in range(4):
+                    if all(state[row, col+i, player] == 1 for i in range(4)):
+                        return player
+            
+            # Vertical
+            for row in range(3):
+                for col in range(7):
+                    if all(state[row+i, col, player] == 1 for i in range(4)):
+                        return player
+            
+            # Diagonal (positive slope)
+            for row in range(3, 6):
+                for col in range(4):
+                    if all(state[row-i, col+i, player] == 1 for i in range(4)):
+                        return player
+            
+            # Diagonal (negative slope)
+            for row in range(3):
+                for col in range(4):
+                    if all(state[row+i, col+i, player] == 1 for i in range(4)):
+                        return player
+        
+        # Check for draw
+        if all(state[0, col, 0] == 1 or state[0, col, 1] == 1 for col in range(7)):
+            return 2
+        
+        return None
+    
+    def _is_winning_move(self, state, action, player):
+        """Check if action is a winning move for player"""
+        new_state = self._apply_action(state, action, player)
+        return self._check_winner(new_state) == player
 
-    def _observation_to_board(self, observation):
-        """
-        Convert PettingZoo observation to simple board format
-        """
-        board = np.zeros((self.ROW_COUNT, self.COLUMN_COUNT), dtype=int)
-        
-        for r in range(self.ROW_COUNT):
-            for c in range(self.COLUMN_COUNT):
-                if observation[r, c, 0] == 1:
-                    board[r][c] = self.AI_PIECE
-                elif observation[r, c, 1] == 1:
-                    board[r][c] = self.OPPONENT_PIECE
-        
-        return board
