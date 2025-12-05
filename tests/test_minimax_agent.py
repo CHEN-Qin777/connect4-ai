@@ -6,6 +6,7 @@ Exercise 5: Advanced challenges
 import sys
 import os
 import time
+import numpy as np
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from pettingzoo.classic import connect_four_v3
@@ -77,16 +78,24 @@ def test_minimax_vs_random():
                 env.step(action)
         
         # Analyze result
-        if final_reward == 1:
+        # When game ends: reward=-1 means last_agent lost, reward=1 means last_agent won
+        if final_reward == -1:
+            # last_agent lost, so the other player won
+            if last_agent == "player_0":  # Minimax was player_0, it lost
+                random_wins += 1
+            else:
+                minimax_wins += 1
+        elif final_reward == 1:
+            # last_agent won
             if last_agent == "player_0":  # Minimax was player_0
                 minimax_wins += 1
             else:
                 random_wins += 1
         else:
             draws += 1
-        
+
         env.close()
-    
+
     minimax_win_rate = minimax_wins / num_games * 100
     print(f"Results Minimax vs Random ({num_games} games):")
     print(f"Minimax wins: {minimax_wins} ({minimax_win_rate:.1f}%)")
@@ -138,16 +147,24 @@ def test_minimax_vs_smart():
                 env.step(action)
         
         # Analyze result
-        if final_reward == 1:
+        # When game ends: reward=-1 means last_agent lost, reward=1 means last_agent won
+        if final_reward == -1:
+            # last_agent lost, so the other player won
+            if last_agent == "player_0":  # Minimax was player_0, it lost
+                smart_wins += 1
+            else:
+                minimax_wins += 1
+        elif final_reward == 1:
+            # last_agent won
             if last_agent == "player_0":  # Minimax was player_0
                 minimax_wins += 1
             else:
                 smart_wins += 1
         else:
             draws += 1
-        
+
         env.close()
-    
+
     print(f"Results Minimax vs Smart ({num_games} games):")
     print(f"Minimax wins: {minimax_wins}")
     print(f"Smart wins: {smart_wins}")
@@ -197,8 +214,9 @@ def test_different_depths():
 def test_evaluation_function():
     """Test evaluation function"""
     print("Test: Evaluation function")
-    
+
     env = connect_four_v3.env()
+    env.reset()
     agent = MinimaxAgent(env, depth=3)
     
     # Test with empty board
