@@ -23,6 +23,7 @@ class TestSuite:
 
     def __init__(self):
         self.env = connect_four_v3.env(render_mode=None)
+        self.env.reset()
         self.results = {}
 
     def run_functional_tests(self):
@@ -232,14 +233,22 @@ class TestSuite:
                     env.step(action)
             
             # Analyze result
-            if final_reward == 1:
+            # When game ends: reward=-1 means last_agent lost, reward=1 means last_agent won
+            if final_reward == -1:
+                # last_agent lost, so the other player won
+                if last_agent == "player_0":  # SmartAgent was player_0, it lost
+                    random_wins += 1
+                else:
+                    smart_wins += 1
+            elif final_reward == 1:
+                # last_agent won
                 if last_agent == "player_0":  # SmartAgent was player_0
                     smart_wins += 1
                 else:
                     random_wins += 1
             else:
                 draws += 1
-            
+
             env.close()
         
         smart_win_rate = smart_wins / num_games * 100
