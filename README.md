@@ -62,7 +62,7 @@ Ce projet implémente le jeu **Puissance 4** avec plusieurs agents intelligents 
 | Smart | Règles | 1 | <0.01s | >80% |
 | Minimax | Arbre de jeu | 3-4 | 1-2s | >95% |
 | **Advanced** | **Minimax++** | **6** | **2-3s** | **>98%** |
-| MCTS | Simulation | Variable | 1-5s | >90% |
+| MCTS | Simulation | Variable | 1-5s | >50% |
 
 ## 🎯 Agent Recommandé pour MLArena
 
