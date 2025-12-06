@@ -53,9 +53,13 @@ Ce projet implémente le jeu **Puissance 4** avec plusieurs agents intelligents 
 - **Performance** : Conçu pour MLArena (<3 s/coup, <384 Mo)
 
 ### 5. MCTSAgent (Optionnel)
-- **Stratégie** : Monte Carlo Tree Search  
-- **Avantage** : Pas besoin de fonction d'évaluation  
-- **Utilisation** : Exploration probabiliste
+- **Stratégie** : Monte Carlo Tree Search avec simulations intelligentes
+- **Tests de constante d'exploration** : C = 0.5, 1.0, 1.41, 2.0 (C = 1.41 optimal)
+- **Optimisations** :
+  - Simulations intelligentes : Utilisation d'heuristiques au lieu du pur aléatoire
+  - Terminaison anticipée : Arrêt de la simulation si le gagnant est clair
+- **Avantage** : Pas besoin de fonction d'évaluation complexe
+- **Utilisation** : Exploration probabiliste avec guidage heuristique
 
 ---
 
