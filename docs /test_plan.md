@@ -316,3 +316,165 @@ Success rate: 100.0%
 
 La suite de tests complète a été exécutée avec succès, validant tous les aspects fonctionnels, de performance et stratégiques des agents Puissance 4. Tous les scénarios définis, y compris le scénario 5 de détection diagonale, ont été testés et validés. Le SmartAgent répond à tous les critères de succès établis, avec des performances supérieures aux attentes (temps d'exécution < 0.01s, utilisation mémoire < 1MB, taux de victoire > 80%).
 
+
+## 10. Questions d'auto-évaluation
+
+### 1. Quelle est la différence entre les tests unitaires et les tests d'intégration ?
+**Réponse :** 
+Les tests unitaires et les tests d'intégration se distinguent principalement par leur portée et leur objectif :
+
+| Aspect | Tests Unitaires | Tests d'Intégration |
+|--------|-----------------|---------------------|
+| **Portée** | Une seule fonction ou méthode | Plusieurs composants travaillant ensemble |
+| **Objectif** | Vérifier le comportement isolé | Vérifier les interactions entre composants |
+| **Dépendances** | Mockées ou isolées | Réelles ou partiellement mockées |
+| **Exemple** | `test_win_detection()` | `test_specific_scenarios()` |
+| **Vitesse** | Rapide (millisecondes) | Plus lent (secondes) |
+| **Exécution** | Fréquente (développement) | Moins fréquente (intégration) |
+
+**Dans notre projet :**
+- **Tests unitaires** : Vérifient des fonctions spécifiques comme la détection de victoire
+- **Tests d'intégration** : Testent l'interaction entre l'agent et l'environnement de jeu
+
+### 2. Pourquoi est-il important de tester les cas limites ?
+**Réponse :**
+Tester les cas limites est crucial pour plusieurs raisons :
+
+1. **Robustesse** : Identifie les faiblesses du système dans des conditions extrêmes
+2. **Prévention de bugs** : Détecte les erreurs qui n'apparaissent pas dans des conditions normales
+3. **Qualité logicielle** : Améliore la fiabilité globale du système
+4. **Expérience utilisateur** : Évite les crashs ou comportements inattendus
+
+**Exemples de cas limites dans Puissance 4 :**
+- Plateau complètement vide (premier coup)
+- Plateau presque plein (derniers coups)
+- Colonnes pleines (choix restreints)
+- Victoire dans la dernière position possible
+- Égalité parfaite (plateau rempli sans gagnant)
+
+**Dans nos tests :**
+- Nous avons testé les colonnes pleines (Scénario 4)
+- Nous avons vérifié la gestion de la fin de partie
+- Nous avons testé différents états du plateau
+
+### 3. Comment mesurez-vous la "force" d'un agent ?
+**Réponse :**
+La force d'un agent se mesure par plusieurs métriques :
+
+| Métrique | Description | Exemple |
+|----------|-------------|---------|
+| **Taux de victoire** | Pourcentage de parties gagnées | 84% contre RandomAgent |
+| **Qualité des décisions** | Nombre de décisions optimales | 5/5 dans les scénarios critiques |
+| **Performance relative** | Comparaison avec des benchmarks | >80% contre RandomAgent |
+| **Consistance** | Stabilité des performances | 10 parties sans dégradation |
+| **Adaptabilité** | Capacité à s'adapter à différents adversaires | Testé contre multiple agents |
+
+**Méthodes de mesure :**
+1. **Tournois** : Compétition entre plusieurs agents
+2. **Matchs** : Séries de parties contre des adversaires spécifiques
+3. **Scénarios** : Tests de situations tactiques prédéfinies
+4. **Benchmarks** : Comparaison avec des algorithmes connus
+
+### 4. Quelles métriques de performance sont importantes pour les agents jouant à des jeux ?
+**Réponse :**
+Pour les agents de jeu, trois catégories de métriques sont importantes :
+
+#### A. Métriques de Qualité de Jeu
+| Métrique | Importance | Valeur cible |
+|----------|------------|--------------|
+| Taux de victoire | Indicateur principal de force | >80% contre référence |
+| Taux d'erreurs | Nombre de décisions sous-optimales | <5% dans scénarios critiques |
+| Profondeur de pensée | Nombre de coups anticipés | 4-6 pour Minimax |
+| Qualité d'évaluation | Précision de la fonction d'évaluation | Cohérente et discriminante |
+
+#### B. Métriques Techniques
+| Métrique | Importance | Valeur cible |
+|----------|------------|--------------|
+| Temps de décision | Rapidité de réponse | <0.1s pour SmartAgent |
+| Utilisation mémoire | Efficacité de stockage | <10MB |
+| Scalabilité | Performance avec complexité croissante | Linéaire ou sous-linéaire |
+| Stabilité | Robustesse sur longues sessions | Aucun crash sur 10+ parties |
+
+#### C. Métriques Comportementales
+| Métrique | Importance | Mesure |
+|----------|------------|--------|
+| Exploration vs Exploitation | Équilibre dans la recherche | Ratio UCB1 optimal |
+| Apprentissage | Amélioration avec l'expérience | Courbe d'apprentissage positive |
+| Adaptation | Réponse à différents styles | Performance stable contre divers adversaires |
+
+### 5. Comment testeriez-vous le caractère aléatoire d'un agent aléatoire ?
+**Réponse :**
+Pour tester le caractère aléatoire d'un agent, plusieurs approches sont possibles :
+
+#### Tests Statistiques
+1. **Test du Chi-carré** : Vérifie la distribution uniforme des coups
+   ```python
+   # Exemple de test statistique
+   from collections import Counter
+   import math
+   
+   def test_random_distribution(agent, num_trials=1000):
+       """Teste si l'agent a une distribution uniforme"""
+       moves = []
+       for _ in range(num_trials):
+           moves.append(agent.choose_action(...))
+       
+       counts = Counter(moves)
+       expected = num_trials / 7  # 7 colonnes dans Puissance 4
+       
+       chi_square = sum((observed - expected)**2 / expected 
+                       for observed in counts.values())
+       return chi_square < 12.59  # Seuil à 95% pour 6 degrés de liberté
+   ```
+
+2. **Test de séquences** : Vérifie l'absence de patterns
+   ```python
+   def test_random_sequences(agent, num_trials=100):
+       """Teste l'absence de séquences répétitives"""
+       sequences = []
+       for _ in range(num_trials):
+           seq = [agent.choose_action(...) for _ in range(10)]
+           sequences.append(tuple(seq))
+       
+       # Vérifie que toutes les séquences sont uniques
+       return len(set(sequences)) == num_trials
+   ```
+
+#### Tests Empiriques
+1. **Distribution des coups** :
+   - Générer un grand nombre de décisions
+   - Vérifier que chaque colonne est choisie approximativement le même nombre de fois
+   - Tolérance : ±10% pour 1000 essais
+
+2. **Indépendance des décisions** :
+   - Tester que la décision actuelle n'est pas corrélée avec les décisions précédentes
+   - Utiliser des tests d'autocorrélation
+
+3. **Reproductibilité avec seed** :
+   ```python
+   def test_random_with_seed():
+       """Teste que l'aléatoire est contrôlable avec une seed"""
+       import random
+       
+       random.seed(42)
+       moves1 = [random.randint(0, 6) for _ in range(10)]
+       
+       random.seed(42)
+       moves2 = [random.randint(0, 6) for _ in range(10)]
+       
+       return moves1 == moves2  # Doit être True
+   ```
+
+#### Méthodes Implémentées dans Notre Projet
+1. **Tests de distribution** : Vérification que RandomAgent ne favorise pas certaines colonnes
+2. **Tests de longue durée** : Exécution de nombreuses parties pour détecter des biais
+3. **Comparaison avec distribution théorique** : Test du khi-deux pour 7 colonnes
+4. **Tests d'indépendance** : Vérification que les coups successifs ne sont pas corrélés
+
+#### Critères de Validation
+- **Uniformité** : Distribution approximativement égale sur toutes les options
+- **Imprévisibilité** : Impossible de deviner le prochain coup
+- **Non-corrélation** : Les décisions successives sont indépendantes
+- **Reproductibilité contrôlée** : Mêmes résultats avec même seed
+
+Ces tests garantissent que l'agent aléatoire est véritablement aléatoire et non biaisé, ce qui est essentiel pour servir de référence fiable dans les comparaisons de performance.
