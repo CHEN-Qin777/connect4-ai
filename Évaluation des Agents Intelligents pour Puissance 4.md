@@ -62,12 +62,14 @@
 - **Signification statistique** : Mesure de l'avantage relatif des autres agents
 
 ### 5. **MCTSAgent (Dernière place)**
-**Taux de victoire: 16.7%** - **Problèmes de performance significatifs**
+**Taux de victoire: 16.7% - Problèmes de performance significatifs**
 
-#### Caractéristiques :
+**Caractéristiques** :
+- **Tests de différentes constantes C** : C = 0.5, 1.0, 1.41, 2.0 (C = 1.41 donne les meilleurs résultats)
+- **Simulations intelligentes** : Utilisation d'heuristiques au lieu du pur aléatoire
+- **Terminaison anticipée** : Arrêt de la simulation si le gagnant est clair
 - **Utilisation du temps** : Nombre potentiellement insuffisant de simulations
 - **Équilibre exploration-exploitation** : Paramètres UCB1 potentiellement inadaptés
-- **Stratégie de simulation simple** : Simulations aléatoires trop basiques
 
 ## 🔍 Comparaison Technique
 
